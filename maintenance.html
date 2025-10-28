@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maintenance - Fleet Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-orange: #f47621;
+      --brand-dark: #33383f;
+      --sidebar-bg: #fff;
+      --sidebar-text: #33383f;
+      --muted: #70757d;
+      --card-bg: #f5f6f8;
+      --card-border: #e3e6ea;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--brand-dark);
+      background: #f3f5f7;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid #e9edf1;
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .brand img {
+      height: 40px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu a {
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--brand-dark);
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .menu a.active,
+    .menu a:hover {
+      background: var(--brand-orange);
+      color: #fff;
+    }
+
+    .logout a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fbe9dd;
+      text-align: center;
+      color: var(--brand-dark);
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .logout a:hover {
+      background: #f8d8c1;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 64px;
+      background: #fff;
+      border-bottom: 1px solid #e9edf1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .welcome {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .date-display {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .notification-bell {
+      position: relative;
+    }
+
+    .bell-link {
+      text-decoration: none;
+      font-size: 20px;
+      color: var(--brand-dark);
+      transition: color 0.2s;
+    }
+
+    .bell-link:hover {
+      color: var(--brand-orange);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .metric {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Section */
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--brand-orange);
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    /* Maintenance Grid */
+    .maintenance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .maintenance-card {
+      background: #fff;
+      border: 1px solid #e3e6ea;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s;
+    }
+
+    .maintenance-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .maintenance-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--brand-dark);
+    }
+
+    .maintenance-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status.scheduled {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .status.overdue {
+      background: #ffebee;
+      color: #d32f2f;
+    }
+
+    .status.completed {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+
+    /* Maintenance Summary Cards */
+    .maintenance-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .summary-card {
+      background: white;
+      border: 1px solid #e3e6ea;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-card:nth-child(1) {
+      border-left: 4px solid #007bff;
+    }
+
+    .summary-card:nth-child(2) {
+      border-left: 4px solid #ffc107;
+    }
+
+    .summary-card:nth-child(3) {
+      border-left: 4px solid #dc3545;
+    }
+
+    .summary-card:nth-child(4) {
+      border-left: 4px solid #28a745;
+    }
+
+    .summary-label {
+      font-size: 14px;
+      color: var(--brand-orange);
+      font-weight: 600;
+    }
+
+    .summary-count {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--brand-dark);
+    }
+
+    /* Maintenance Controls */
+    .maintenance-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .filter-section {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+      min-width: 120px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--brand-orange);
+      box-shadow: 0 0 0 2px rgba(244, 118, 33, 0.2);
+    }
+
+    .action-section {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--brand-orange);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #e66a1a;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+
+    /* Maintenance Table */
+    .maintenance-table-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .maintenance-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .maintenance-table thead {
+      background: #6c757d;
+      color: white;
+    }
+
+    .maintenance-table th {
+      padding: 16px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .maintenance-table td {
+      padding: 16px 12px;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .maintenance-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .maintenance-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-right: 4px;
+    }
+
+    .btn-small.btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-small.btn-primary:hover {
+      background: #0056b3;
+    }
+
+    .btn-small.btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-small.btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .menu {
+        flex-direction: row;
+        gap: 12px;
+      }
+
+      .logout {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <img src="flogo.png" alt="Company logo" />
+      </div>
+      <nav class="menu">
+        <a href="dashboardf.html"><span>Dashboard</span></a>
+        <a href="users.html"><span>Users</span></a>
+        <a href="task.html"><span>Task Assign</span></a>
+        <a href="notif.html"><span>Notification</span></a>
+        <a href="maintenance.html" class="active"><span>Maintenance</span></a>
+        <a href="track.html"><span>Tracking</span></a>
+      </nav>
+    </div>
+    <div class="logout">
+      <a href="loginfleet.html"><span>Logout</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="welcome">Welcome, Michael!</div>
+      <div class="topbar-right">
+        <div class="date-display" id="currentDate"></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <h1 class="page-title">Maintenance Management</h1>
+
+      <!-- Summary cards removed per requirements -->
+
+      <!-- Maintenance Controls -->
+      <div class="maintenance-controls">
+        <div class="filter-section">
+          <select class="filter-select" id="statusFilter" onchange="filterMaintenance()">
+            <option value="">All Status</option>
+            <option value="Scheduled">Scheduled</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Overdue">Overdue</option>
+          </select>
+          <select class="filter-select" id="vehicleFilter" onchange="filterMaintenance()">
+            <option value="">All Vehicles</option>
+            <option value="ABC123">ABC123</option>
+            <option value="NVP-100">NVP-100</option>
+            <option value="BCD300">BCD300</option>
+          </select>
+        </div>
+        <div class="action-section">
+          <button class="btn btn-primary" onclick="openCreateMaintenanceModal()">+ Create Maintenance Ticket</button>
+        </div>
+      </div>
+
+      <!-- Maintenance Tickets Table -->
+      <div class="maintenance-table-container">
+        <table class="maintenance-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Vehicle</th>
+              <th>Issue Type</th>
+              <th>Description</th>
+              <th>Assigned To</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#MNT-001</td>
+              <td>ABC123</td>
+              <td>Oil Change</td>
+              <td>Regular maintenance oil change</td>
+              <td>John Smith</td>
+              <td>2024-01-15</td>
+              <td><span class="status scheduled">Scheduled</span></td>
+              <td><span class="priority-medium">Medium</span></td>
+              <td>
+                <button class="btn-small btn-primary" onclick="printTicket('MNT-001')">Print</button>
+                <button class="btn-small btn-secondary" onclick="editTicket('MNT-001')">Edit</button>
+              </td>
+            </tr>
+            <tr>
+              <td>#MNT-002</td>
+              <td>NVP-100</td>
+              <td>Brake Inspection</td>
+              <td>Brake system inspection and repair</td>
+              <td>Mike Johnson</td>
+              <td>2024-01-10</td>
+              <td><span class="status overdue">Overdue</span></td>
+              <td><span class="priority-high">High</span></td>
+              <td>
+                <button class="btn-small btn-primary" onclick="printTicket('MNT-002')">Print</button>
+                <button class="btn-small btn-secondary" onclick="editTicket('MNT-002')">Edit</button>
+              </td>
+            </tr>
+            <tr>
+              <td>#MNT-003</td>
+              <td>BCD300</td>
+              <td>Tire Rotation</td>
+              <td>Regular tire rotation service</td>
+              <td>Sarah Wilson</td>
+              <td>2024-01-05</td>
+              <td><span class="status completed">Completed</span></td>
+              <td><span class="priority-low">Low</span></td>
+              <td>
+                <button class="btn-small btn-primary" onclick="printTicket('MNT-003')">Print</button>
+                <button class="btn-small btn-secondary" onclick="editTicket('MNT-003')">Edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Display current date
+    function updateDate() {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+      const dateString = now.toLocaleDateString('en-US', options);
+      document.getElementById('currentDate').textContent = dateString;
+    }
+
+    // Update date on page load
+    updateDate();
+
+    // Update date every minute
+    setInterval(updateDate, 60000);
+
+    // Maintenance Functions
+    function filterMaintenance() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const vehicleFilter = document.getElementById('vehicleFilter').value;
+      
+      const rows = document.querySelectorAll('.maintenance-table tbody tr');
+      
+      rows.forEach(row => {
+        const status = row.querySelector('.status')?.textContent.trim();
+        const vehicle = row.cells[1].textContent.trim();
+        
+        let showRow = true;
+        
+        if (statusFilter && status !== statusFilter) {
+          showRow = false;
+        }
+        
+        if (vehicleFilter && vehicle !== vehicleFilter) {
+          showRow = false;
+        }
+        
+        row.style.display = showRow ? '' : 'none';
+      });
+    }
+
+    function openCreateMaintenanceModal() {
+      // Create a simple modal for creating maintenance tickets
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      `;
+      
+      modal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 12px; width: 500px; max-width: 90%;">
+          <h3 style="margin-bottom: 20px;">Create Maintenance Ticket</h3>
+          <form id="maintenanceForm">
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Vehicle:</label>
+              <select name="vehicle" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                <option value="">Select Vehicle</option>
+                <option value="ABC123">ABC123</option>
+                <option value="NVP-100">NVP-100</option>
+                <option value="BCD300">BCD300</option>
+              </select>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Issue Type:</label>
+              <select name="issueType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                <option value="">Select Issue Type</option>
+                <option value="Oil Change">Oil Change</option>
+                <option value="Brake Inspection">Brake Inspection</option>
+                <option value="Tire Rotation">Tire Rotation</option>
+                <option value="Engine Repair">Engine Repair</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Description:</label>
+              <textarea name="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; height: 80px;" required></textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Assigned To:</label>
+              <input type="text" name="assignedTo" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Due Date:</label>
+              <input type="date" name="dueDate" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 5px; font-weight: 600;">Priority:</label>
+              <select name="priority" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button type="button" onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 6px; cursor: pointer;">Cancel</button>
+              <button type="submit" style="padding: 10px 20px; border: none; background: var(--brand-orange); color: white; border-radius: 6px; cursor: pointer;">Create Ticket</button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Handle form submission
+      document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        createMaintenanceTicket(formData);
+        closeModal();
+      });
+    }
+
+    function closeModal() {
+      const modal = document.querySelector('div[style*="position: fixed"]');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    function createMaintenanceTicket(formData) {
+      const data = Object.fromEntries(formData.entries());
+      const ticketNumber = '#MNT-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+      
+      // Add new row to table
+      const tableBody = document.querySelector('.maintenance-table tbody');
+      const newRow = tableBody.insertRow();
+      
+      newRow.innerHTML = `
+        <td>${ticketNumber}</td>
+        <td>${data.vehicle}</td>
+        <td>${data.issueType}</td>
+        <td>${data.description}</td>
+        <td>${data.assignedTo}</td>
+        <td>${data.dueDate}</td>
+        <td><span class="status scheduled">Scheduled</span></td>
+        <td><span class="priority-${data.priority.toLowerCase()}">${data.priority}</span></td>
+        <td>
+          <button class="btn-small btn-primary" onclick="printTicket('${ticketNumber}')">Print</button>
+          <button class="btn-small btn-secondary" onclick="editTicket('${ticketNumber}')">Edit</button>
+        </td>
+      `;
+      
+      alert('Maintenance ticket created successfully!');
+    }
+
+    function printTicket(ticketNumber) {
+      // Add confirmation dialog
+      if (!confirm('Do you want to print this maintenance ticket?')) {
+        return;
+      }
+      
+      // Find the ticket data
+      const rows = document.querySelectorAll('.maintenance-table tbody tr');
+      let ticketData = null;
+      
+      rows.forEach(row => {
+        if (row.cells[0].textContent === ticketNumber) {
+          ticketData = {
+            ticketNumber: row.cells[0].textContent,
+            vehicle: row.cells[1].textContent,
+            issueType: row.cells[2].textContent,
+            description: row.cells[3].textContent,
+            assignedTo: row.cells[4].textContent,
+            dueDate: row.cells[5].textContent,
+            status: row.cells[6].textContent,
+            priority: row.cells[7].textContent
+          };
+        }
+      });
+      
+      if (ticketData) {
+        // Create print window
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Maintenance Ticket - ${ticketData.ticketNumber}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .ticket { border: 2px solid #333; padding: 20px; max-width: 600px; }
+              .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+              .field { margin-bottom: 10px; }
+              .label { font-weight: bold; display: inline-block; width: 120px; }
+              .value { display: inline-block; }
+              .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="ticket">
+              <div class="header">
+                <h1>MAINTENANCE TICKET</h1>
+                <h2>${ticketData.ticketNumber}</h2>
+              </div>
+              <div class="field">
+                <span class="label">Date Created:</span>
+                <span class="value">${new Date().toLocaleDateString()}</span>
+              </div>
+              <div class="field">
+                <span class="label">Vehicle:</span>
+                <span class="value">${ticketData.vehicle}</span>
+              </div>
+              <div class="field">
+                <span class="label">Issue Type:</span>
+                <span class="value">${ticketData.issueType}</span>
+              </div>
+              <div class="field">
+                <span class="label">Description:</span>
+                <span class="value">${ticketData.description}</span>
+              </div>
+              <div class="field">
+                <span class="label">Assigned To:</span>
+                <span class="value">${ticketData.assignedTo}</span>
+              </div>
+              <div class="field">
+                <span class="label">Due Date:</span>
+                <span class="value">${ticketData.dueDate}</span>
+              </div>
+              <div class="field">
+                <span class="label">Priority:</span>
+                <span class="value">${ticketData.priority}</span>
+              </div>
+              <div class="field">
+                <span class="label">Status:</span>
+                <span class="value">${ticketData.status}</span>
+              </div>
+              <div class="footer">
+                <p>Generated on ${new Date().toLocaleString()}</p>
+                <p>Fleet Management System</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
+
+    function editTicket(ticketNumber) {
+      // Find the ticket data
+      const rows = document.querySelectorAll('.maintenance-table tbody tr');
+      let ticketData = null;
+      let rowElement = null;
+      
+      rows.forEach(row => {
+        if (row.cells[0].textContent === ticketNumber) {
+          ticketData = {
+            ticketNumber: row.cells[0].textContent,
+            vehicle: row.cells[1].textContent,
+            issueType: row.cells[2].textContent,
+            description: row.cells[3].textContent,
+            assignedTo: row.cells[4].textContent,
+            dueDate: row.cells[5].textContent,
+            status: row.cells[6].textContent,
+            priority: row.cells[7].textContent
+          };
+          rowElement = row;
+        }
+      });
+      
+      if (ticketData) {
+        // Create edit modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        `;
+        
+        modal.innerHTML = `
+          <div style="background: white; padding: 30px; border-radius: 12px; width: 500px; max-width: 90%;">
+            <h3 style="margin-bottom: 20px;">Edit Maintenance Ticket - ${ticketData.ticketNumber}</h3>
+            <form id="editMaintenanceForm">
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Vehicle:</label>
+                <select name="vehicle" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                  <option value="ABC123" ${ticketData.vehicle === 'ABC123' ? 'selected' : ''}>ABC123</option>
+                  <option value="NVP-100" ${ticketData.vehicle === 'NVP-100' ? 'selected' : ''}>NVP-100</option>
+                  <option value="BCD300" ${ticketData.vehicle === 'BCD300' ? 'selected' : ''}>BCD300</option>
+                </select>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Issue Type:</label>
+                <select name="issueType" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                  <option value="Oil Change" ${ticketData.issueType === 'Oil Change' ? 'selected' : ''}>Oil Change</option>
+                  <option value="Brake Inspection" ${ticketData.issueType === 'Brake Inspection' ? 'selected' : ''}>Brake Inspection</option>
+                  <option value="Tire Rotation" ${ticketData.issueType === 'Tire Rotation' ? 'selected' : ''}>Tire Rotation</option>
+                  <option value="Engine Repair" ${ticketData.issueType === 'Engine Repair' ? 'selected' : ''}>Engine Repair</option>
+                  <option value="Electrical" ${ticketData.issueType === 'Electrical' ? 'selected' : ''}>Electrical</option>
+                  <option value="Other" ${ticketData.issueType === 'Other' ? 'selected' : ''}>Other</option>
+                </select>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Description:</label>
+                <textarea name="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; height: 80px;" required>${ticketData.description}</textarea>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Assigned To:</label>
+                <input type="text" name="assignedTo" value="${ticketData.assignedTo}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Due Date:</label>
+                <input type="date" name="dueDate" value="${ticketData.dueDate}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Status:</label>
+                <select name="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                  <option value="Scheduled" ${ticketData.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                  <option value="In Progress" ${ticketData.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                  <option value="Completed" ${ticketData.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                  <option value="Overdue" ${ticketData.status === 'Overdue' ? 'selected' : ''}>Overdue</option>
+                </select>
+              </div>
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Priority:</label>
+                <select name="priority" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px;" required>
+                  <option value="Low" ${ticketData.priority === 'Low' ? 'selected' : ''}>Low</option>
+                  <option value="Medium" ${ticketData.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+                  <option value="High" ${ticketData.priority === 'High' ? 'selected' : ''}>High</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button type="submit" style="padding: 10px 20px; border: none; background: var(--brand-orange); color: white; border-radius: 6px; cursor: pointer;">Update Ticket</button>
+              </div>
+            </form>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Handle form submission
+        document.getElementById('editMaintenanceForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          updateMaintenanceTicket(ticketNumber, formData, rowElement);
+          closeModal();
+        });
+      }
+    }
+
+    function updateMaintenanceTicket(ticketNumber, formData, rowElement) {
+      const data = Object.fromEntries(formData.entries());
+      
+      // Update the table row
+      rowElement.cells[1].textContent = data.vehicle;
+      rowElement.cells[2].textContent = data.issueType;
+      rowElement.cells[3].textContent = data.description;
+      rowElement.cells[4].textContent = data.assignedTo;
+      rowElement.cells[5].textContent = data.dueDate;
+      rowElement.cells[6].innerHTML = `<span class="status ${data.status.toLowerCase().replace(' ', '-')}">${data.status}</span>`;
+      rowElement.cells[7].innerHTML = `<span class="priority-${data.priority.toLowerCase()}">${data.priority}</span>`;
+      
+      alert('Maintenance ticket updated successfully!');
+    }
+
+    function exportMaintenance() {
+      alert('Export functionality would download maintenance data here');
+    }
+  </script>
+</body>
+</html>

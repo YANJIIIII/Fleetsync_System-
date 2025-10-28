@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pending Requests - Asset Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-orange: #f47621;
+      --brand-dark: #33383f;
+      --muted: #70757d;
+      --card-border: #e3e6ea;
+      --bg-light: #f5f7fa;
+      --danger-red: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--brand-dark);
+      background: var(--bg-light);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: #fff;
+      border-right: 1px solid #e9edf1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px;
+    }
+    .brand { text-align: center; margin-bottom: 24px; }
+    .brand img { height: 40px; }
+    .menu { display: flex; flex-direction: column; gap: 4px; }
+    .menu a, .menu button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--brand-dark);
+      font-weight: 600;
+      text-align: left;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .menu a.active, .menu a:hover,
+    .menu button:hover {
+      background: var(--brand-orange);
+      color: #fff;
+    }
+    .submenu { display: none; flex-direction: column; margin-left: 16px; gap: 4px; }
+    .submenu a { font-weight: 500; font-size: 14px; color: var(--brand-dark); }
+    .submenu a.active, .submenu a:hover { background: var(--brand-orange); color: #fff; }
+    .submenu.show { display: flex; }
+    .logout a {
+      display: block;
+      padding: 12px;
+      border-radius: 10px;
+      background: #fbe9dd;
+      text-align: center;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--brand-dark);
+    }
+
+    /* Main */
+    .main { flex: 1; display: flex; flex-direction: column; }
+    .topbar {
+      height: 64px;
+      background: #fff;
+      border-bottom: 1px solid #e9edf1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .welcome { font-weight: 700; font-size: 16px; }
+    .content { flex: 1; padding: 24px; overflow-y: auto; }
+    .h1 { font-size: 28px; font-weight: 800; margin-bottom: 20px; color: var(--brand-orange); }
+
+    /* Container */
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 14px;
+    }
+    tbody tr:hover { background: #fff9f4; }
+    .btn {
+      background: var(--brand-orange);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #d65e12; }
+    .btn.danger { background: var(--danger-red); color: #fff; }
+
+    /* Modal Base */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 14px 20px;
+      background: var(--brand-orange);
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body { padding: 20px; }
+    .modal-body p { margin-bottom: 8px; }
+    .modal-footer {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--card-border);
+    }
+    .close { cursor: pointer; font-size: 20px; }
+    textarea {
+      width: 100%;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px;
+      resize: none;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div>
+      <div class="brand"><img src="flogo.png" alt="Company logo" /></div>
+      <nav class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="materials.html">Materials</a>
+        <button id="requestsBtn">Requests ▾</button>
+        <div class="submenu" id="requestsMenu">
+          <a href="requestpending.html" class="active">Pending</a>
+          <a href="onhold.html">On Hold</a>
+          <a href="completed.html">Completed</a>
+        </div>
+      </nav>
+    </div>
+    <div class="logout"><a href="finsilogin.html">Logout</a></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="welcome">Welcome, User!</div>
+      <div class="date-display" id="currentDate"></div>
+    </div>
+
+    <div class="content">
+      <div class="h1">Pending Requests</div>
+      <div class="container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ticket</th>
+              <th>Date</th>
+              <th>Site</th>
+              <th>Task Description</th>
+              <th>Status</th>
+              <th>Priority Level</th>
+              <th>Requested Materials</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1001</td>
+              <td>#1001</td>
+              <td>2025-09-28</td>
+              <td>Main Office</td>
+              <td>Install network infrastructure for new office</td>
+              <td>Pending</td>
+              <td>High</td>
+              <td><strong>Network Switch - 3 pcs</strong></td>
+              <td><button class="btn view-btn">View</button></td>
+            </tr>
+            <tr>
+              <td>1002</td>
+              <td>#1002</td>
+              <td>2025-09-29</td>
+              <td>Branch Office</td>
+              <td>Replace damaged network cables</td>
+              <td>Pending</td>
+              <td>Medium</td>
+              <td><strong>LAN Cable - 50m</strong></td>
+              <td><button class="btn view-btn">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Details Modal -->
+  <div class="modal" id="detailsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>Request Details</span>
+        <span class="close" id="closeDetails">&times;</span>
+      </div>
+      <div class="modal-body" id="detailsBody">
+        <p><strong>ID:</strong> 1001</p>
+        <p><strong>Ticket:</strong> #1001</p>
+        <p><strong>Date:</strong> 2025-09-28</p>
+        <p><strong>Site:</strong> Main Office</p>
+        <p><strong>Task Description:</strong> Install network infrastructure for new office</p>
+        <p><strong>Status:</strong> Pending</p>
+        <p><strong>Priority Level:</strong> High</p>
+        <p><strong>Requested Materials:</strong> <strong>Network Switch - 3 pcs</strong></p>
+        <p><strong>Requested By:</strong> John Doe</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn danger" id="declineBtn">Decline</button>
+        <button class="btn" id="holdBtn">Put On Hold</button>
+        <button class="btn" id="forwardBtn">Forward Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decline Modal -->
+  <div class="modal" id="declineModal">
+    <div class="modal-content">
+      <div class="modal-header" style="background: var(--danger-red);">
+        <span>Decline Request</span>
+        <span class="close" id="closeDecline">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>Please provide a reason for declining:</p>
+        <textarea id="declineReason" placeholder="Enter reason..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn danger" id="confirmDecline">Confirm Decline</button>
+        <button class="btn" id="cancelDecline">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forward Modal -->
+  <div class="modal" id="forwardModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>Forward Task</span>
+        <span class="close" id="closeForward">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p><strong>ID:</strong> 1001</p>
+        <p><strong>Ticket:</strong> #1001</p>
+        <p><strong>Date:</strong> 2025-09-28</p>
+        <p><strong>Site:</strong> Main Office</p>
+        <p><strong>Task Description:</strong> Install network infrastructure for new office</p>
+        <p><strong>Status:</strong> Pending</p>
+        <p><strong>Priority Level:</strong> High</p>
+        <p><strong>Requested Materials:</strong> <strong>Network Switch - 3 pcs</strong></p>
+        <p><strong>Requested By:</strong> John Doe</p>
+        <textarea id="forwardComment" placeholder="Add forwarding comment..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn danger" id="cancelForward">Cancel</button>
+        <button class="btn" id="confirmForward">Forward Task</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Date
+    function updateDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+    updateDate();
+
+    // Dropdown
+    document.getElementById('requestsBtn').addEventListener('click', () => {
+      document.getElementById('requestsMenu').classList.toggle('show');
+    });
+
+    // Modals
+    const detailsModal = document.getElementById('detailsModal');
+    const declineModal = document.getElementById('declineModal');
+    const forwardModal = document.getElementById('forwardModal');
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', () => detailsModal.style.display = 'flex');
+    });
+
+    document.getElementById('closeDetails').onclick = () => detailsModal.style.display = 'none';
+    document.getElementById('closeDecline').onclick = () => declineModal.style.display = 'none';
+    document.getElementById('closeForward').onclick = () => forwardModal.style.display = 'none';
+    document.getElementById('cancelForward').onclick = () => {
+      forwardModal.style.display = 'none';
+      detailsModal.style.display = 'flex'; // go back
+    };
+    document.getElementById('cancelDecline').onclick = () => {
+      declineModal.style.display = 'none';
+      detailsModal.style.display = 'flex'; // go back
+    };
+
+    document.getElementById('declineBtn').onclick = () => {
+      detailsModal.style.display = 'none';
+      declineModal.style.display = 'flex';
+    };
+
+    document.getElementById('holdBtn').onclick = () => {
+      if (confirm("Are you sure you want to put this request on hold?")) {
+        alert("Request put on hold!");
+        detailsModal.style.display = 'none';
+      } else {
+        detailsModal.style.display = 'flex'; // back
+      }
+    };
+
+    document.getElementById('forwardBtn').onclick = () => {
+      detailsModal.style.display = 'none';
+      forwardModal.style.display = 'flex';
+    };
+
+    document.getElementById('confirmDecline').onclick = () => {
+      if (confirm("Are you sure you want to decline this request?")) {
+        alert("Request Declined with reason: " + document.getElementById('declineReason').value);
+        declineModal.style.display = 'none';
+      } else {
+        declineModal.style.display = 'flex';
+      }
+    };
+
+    document.getElementById('confirmForward').onclick = () => {
+      if (confirm("Are you sure you want to forward this task?")) {
+        alert("Task Forwarded with comment: " + document.getElementById('forwardComment').value);
+        forwardModal.style.display = 'none';
+      } else {
+        forwardModal.style.display = 'flex';
+      }
+    };
+
+    // Close outside click
+    window.onclick = e => {
+      if (e.target === detailsModal) detailsModal.style.display = "none";
+      if (e.target === declineModal) declineModal.style.display = "none";
+      if (e.target === forwardModal) forwardModal.style.display = "none";
+    };
+  </script>
+</body>
+</html>

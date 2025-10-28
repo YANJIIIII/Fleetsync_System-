@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add User - Fleet Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-orange: #f47621;
+      --brand-dark: #33383f;
+      --sidebar-bg: #f47621;
+      --sidebar-text: #ffffff;
+      --muted: #70757d;
+      --card-border: #e3e6ea;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f3f5f7; color: var(--brand-dark); }
+
+    .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--sidebar-bg); color: #fff; display: grid; grid-template-rows: auto 1fr auto; padding: 14px; gap: 12px; }
+    .profile { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 8px 6px 12px 6px; border-bottom: 1px solid rgba(255,255,255,0.25); }
+    .avatar { width: 64px; height: 64px; border-radius: 50%; background: #fff; color: var(--sidebar-bg); display: grid; place-items: center; font-weight: 800; font-size: 22px; }
+    .menu { display: grid; gap: 6px; margin-top: 8px; }
+    .menu a { color: #fff; text-decoration: none; display: grid; justify-items: center; padding: 8px 10px; border-radius: 8px; font-weight: 700; }
+    .menu a:hover { background: rgba(255,255,255,0.18); }
+    .logout { margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.25); padding-top: 8px; }
+    .logout a { color:#fff; text-decoration:none; display:grid; justify-items:center; padding:10px 12px; border-radius:8px; background: rgba(255,255,255,0.18); }
+
+    .main { display: grid; grid-template-rows: 64px 1fr; }
+    .topbar { background:#fff; border-bottom:1px solid #e9edf1; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; padding:0 18px; }
+    .welcome { font-weight:700; }
+    .brand-top { justify-self:center; }
+    .brand-top img { height:30px; }
+
+    .content { padding: 20px 24px; display:grid; place-items:center; align-content:start; gap:16px; }
+    .page-title { font-size: 28px; font-weight: 800; margin: 0; text-align:center; }
+    .card { background:#fff; border:1px solid var(--card-border); border-radius:10px; padding:18px; width:100%; max-width:720px; box-shadow:0 8px 14px rgba(0,0,0,0.05); }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    .field { display:grid; gap:6px; }
+    label { font-size:13px; color:#444; }
+    input { height:40px; padding:8px 12px; border:1px solid #d7dbe0; border-radius:6px; font-size:14px; }
+    .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+    .btn { border:none; border-radius:6px; padding:10px 16px; font-weight:700; cursor:pointer; }
+    .btn-primary { background: var(--brand-orange); color:#fff; }
+    .btn-secondary { background:#eef1f4; color:#333; }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="profile">
+        <div class="avatar">M</div>
+        <div>Michael Broncano</div>
+      </div>
+      <nav class="menu">
+        <a href="dashboardf.html">Dashboard</a>
+        <a href="users.html">Users</a>
+        <a href="#">Task Assign</a>
+        <a href="#">Maintenance</a>
+        <a href="#">Tracking</a>
+      </nav>
+      <div class="logout"><a href="loginfleet.html">Logout</a></div>
+    </aside>
+
+    <section class="main">
+      <div class="topbar">
+        <div class="welcome">Welcome, Michael!</div>
+        <div class="brand-top"><img src="flogo.png" alt="Company logo" /></div>
+        <div></div>
+      </div>
+
+      <div class="content">
+        <h1 class="page-title">Add User</h1>
+        <div class="card">
+          <form id="addUserForm" action="users.html" method="get">
+            <div class="grid">
+              <div class="field">
+                <label for="givenName">Given Name</label>
+                <input id="givenName" name="givenName" type="text" required />
+              </div>
+              <div class="field">
+                <label for="middleName">Middle Name</label>
+                <input id="middleName" name="middleName" type="text" />
+              </div>
+              <div class="field">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" name="lastName" type="text" required />
+              </div>
+              <div class="field">
+                <label for="phone">Phone Number</label>
+                <input id="phone" name="phone" type="tel" required />
+              </div>
+              <div class="field">
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" required />
+              </div>
+            </div>
+            <div class="actions">
+              <a class="btn btn-secondary" href="users.html">Cancel</a>
+              <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+    (function(){
+      const form = document.getElementById('addUserForm');
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const given = document.getElementById('givenName').value.trim();
+        const middle = document.getElementById('middleName').value.trim();
+        const last = document.getElementById('lastName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        // Basic credential/field checks
+        const phoneOk = /^\+?\d[\d\s-]{8,}$/.test(phone);
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!phoneOk) { alert('Please enter a valid phone number.'); return; }
+        if (!emailOk) { alert('Please enter a valid email address.'); return; }
+
+        const summary = `Please confirm the details:\n\n` +
+          `Given Name: ${given}\n` +
+          `Middle Name: ${middle || 'N/A'}\n` +
+          `Last Name: ${last}\n` +
+          `Phone: ${phone}\n` +
+          `Email: ${email}`;
+
+        if (confirm(summary)) {
+          alert('User saved successfully!');
+          window.location.href = 'users.html';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task Assign - Fleet Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-orange: #f47621;
+      --brand-dark: #33383f;
+      --sidebar-bg: #fff;
+      --sidebar-text: #33383f;
+      --muted: #70757d;
+      --card-bg: #f5f6f8;
+      --card-border: #e3e6ea;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--brand-dark);
+      background: #f3f5f7;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid #e9edf1;
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .brand img {
+      height: 40px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu a {
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--brand-dark);
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Highlight active page */
+    .menu a.active,
+    .menu a:hover {
+      background: var(--brand-orange);
+      color: #fff;
+    }
+
+    .logout a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fbe9dd;
+      text-align: center;
+      color: var(--brand-dark);
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .logout a:hover {
+      background: #f8d8c1;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 64px;
+      background: #fff;
+      border-bottom: 1px solid #e9edf1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .welcome {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .date-display {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .notification-dropdown {
+      position: relative;
+    }
+
+    .dropdown-toggle {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--brand-dark);
+      cursor: pointer;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .dropdown-toggle:hover {
+      color: var(--brand-orange);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s infinite;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #e3e6ea;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      min-width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e3e6ea;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dropdown-header h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+
+    .view-all {
+      color: var(--brand-orange);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .view-all:hover {
+      text-decoration: underline;
+    }
+
+    .dropdown-content {
+      padding: 8px 0;
+    }
+
+    .notification-preview {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 20px;
+      transition: background 0.2s;
+    }
+
+    .notification-preview:hover {
+      background: #f8f9fa;
+    }
+
+    .notification-preview.unread {
+      background: #fff8f5;
+      border-left: 3px solid var(--brand-orange);
+    }
+
+    .preview-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .preview-content {
+      flex: 1;
+    }
+
+    .preview-content h5 {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--brand-dark);
+    }
+
+    .preview-content p {
+      margin: 0 0 4px 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .preview-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+
+    /* Notification Styles */
+    .notification-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .date-filter {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .date-filter label {
+      font-weight: 600;
+      color: var(--brand-dark);
+    }
+
+    .date-filter input[type="date"] {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--brand-orange);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #e66a1a;
+    }
+
+    .btn-secondary {
+      background: #e9ecef;
+      color: var(--brand-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #dee2e6;
+    }
+
+    .notifications-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .notification-item {
+      background: #fff;
+      border: 1px solid #e3e6ea;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: all 0.2s;
+    }
+
+    .notification-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-item.unread {
+      border-left: 4px solid var(--brand-orange);
+      background: #fff8f5;
+    }
+
+    .notification-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-content h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--brand-dark);
+    }
+
+    .notification-content p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .notification-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-small:not(.btn-danger) {
+      background: #e9ecef;
+      color: var(--brand-dark);
+    }
+
+    .btn-small:not(.btn-danger):hover {
+      background: #dee2e6;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .menu {
+        flex-direction: row;
+        gap: 12px;
+      }
+
+      .logout {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <img src="flogo.png" alt="Company logo" />
+      </div>
+      <nav class="menu">
+        <a href="dashboardf.html"><span>Dashboard</span></a>
+        <a href="users.html"><span>Users</span></a>
+        <a href="task.html"><span>Task Assign</span></a>
+        <a href="notif.html" class="active"><span>Notification</span></a>
+        <a href="maintenance.html"><span>Maintenance</span></a>
+        <a href="track.html"><span>Tracking</span></a>
+      </nav>
+    </div>
+    <div class="logout">
+      <a href="loginfleet.html"><span>Logout</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="welcome">Welcome, Michael!</div>
+      <div class="topbar-right">
+        <div class="date-display" id="currentDate"></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <h1 class="page-title">Notifications</h1>
+      
+      <!-- Notification Controls -->
+      <div class="notification-controls">
+        <div class="date-filter">
+          <label for="dateFilter">Filter by Date:</label>
+          <input type="date" id="dateFilter" onchange="filterByDate()">
+          <button class="btn btn-secondary" onclick="showAllNotifications()">Show All</button>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="markAllAsRead()">Mark All as Read</button>
+          <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Notification List -->
+      <div class="notifications-container">
+        <div class="notification-item unread" data-date="2024-01-15">
+          <div class="notification-icon">🚨</div>
+          <div class="notification-content">
+            <h3>Vehicle Maintenance Due</h3>
+            <p>Vehicle ABC123 requires brake inspection. Due date: 2024-01-15</p>
+            <span class="notification-time">2 hours ago</span>
+          </div>
+          <div class="notification-actions">
+            <button class="btn-small" onclick="markAsRead(this)">Mark Read</button>
+            <button class="btn-small btn-danger" onclick="deleteNotification(this)">Delete</button>
+          </div>
+        </div>
+
+        <div class="notification-item" data-date="2024-01-14">
+          <div class="notification-icon">✅</div>
+          <div class="notification-content">
+            <h3>Task Completed</h3>
+            <p>Delivery task #1234 has been completed by Rene Apalla</p>
+            <span class="notification-time">4 hours ago</span>
+          </div>
+          <div class="notification-actions">
+            <button class="btn-small" onclick="markAsRead(this)">Mark Read</button>
+            <button class="btn-small btn-danger" onclick="deleteNotification(this)">Delete</button>
+          </div>
+        </div>
+
+        <div class="notification-item unread" data-date="2024-01-15">
+          <div class="notification-icon">⚠️</div>
+          <div class="notification-content">
+            <h3>Low Fuel Alert</h3>
+            <p>Vehicle NVP-100 fuel level is below 20%</p>
+            <span class="notification-time">6 hours ago</span>
+          </div>
+          <div class="notification-actions">
+            <button class="btn-small" onclick="markAsRead(this)">Mark Read</button>
+            <button class="btn-small btn-danger" onclick="deleteNotification(this)">Delete</button>
+          </div>
+        </div>
+
+        <div class="notification-item" data-date="2024-01-13">
+          <div class="notification-icon">📋</div>
+          <div class="notification-content">
+            <h3>New Task Assigned</h3>
+            <p>You have been assigned a new delivery task for tomorrow</p>
+            <span class="notification-time">1 day ago</span>
+          </div>
+          <div class="notification-actions">
+            <button class="btn-small" onclick="markAsRead(this)">Mark Read</button>
+            <button class="btn-small btn-danger" onclick="deleteNotification(this)">Delete</button>
+          </div>
+        </div>
+
+        <div class="notification-item" data-date="2024-01-12">
+          <div class="notification-icon">🔧</div>
+          <div class="notification-content">
+            <h3>Maintenance Scheduled</h3>
+            <p>Vehicle BCD300 oil change scheduled for next week</p>
+            <span class="notification-time">2 days ago</span>
+          </div>
+          <div class="notification-actions">
+            <button class="btn-small" onclick="markAsRead(this)">Mark Read</button>
+            <button class="btn-small btn-danger" onclick="deleteNotification(this)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Notification functionality
+    function markAsRead(button) {
+      const notificationItem = button.closest('.notification-item');
+      notificationItem.classList.remove('unread');
+      button.textContent = 'Read';
+      button.disabled = true;
+      updateNotificationCount();
+    }
+
+    function markAllAsRead() {
+      const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+      unreadNotifications.forEach(item => {
+        item.classList.remove('unread');
+        const markReadBtn = item.querySelector('.btn-small:not(.btn-danger)');
+        markReadBtn.textContent = 'Read';
+        markReadBtn.disabled = true;
+      });
+      updateNotificationCount();
+    }
+
+    function deleteNotification(button) {
+      const notificationItem = button.closest('.notification-item');
+      notificationItem.style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => {
+        notificationItem.remove();
+        updateNotificationCount();
+      }, 300);
+    }
+
+    function clearAll() {
+      if (confirm('Are you sure you want to clear all notifications?')) {
+        const notifications = document.querySelectorAll('.notification-item');
+        notifications.forEach((item, index) => {
+          setTimeout(() => {
+            item.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => item.remove(), 300);
+          }, index * 100);
+        });
+        updateNotificationCount();
+      }
+    }
+
+    function updateNotificationCount() {
+      const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+      // Update notification badge in other pages if needed
+      const badge = document.querySelector('.notification-badge');
+      if (badge) {
+        badge.textContent = unreadCount;
+        badge.style.display = unreadCount > 0 ? 'block' : 'none';
+      }
+    }
+
+    // Add slide out animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideOut {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Date filtering functionality
+    function filterByDate() {
+      const selectedDate = document.getElementById('dateFilter').value;
+      const notifications = document.querySelectorAll('.notification-item');
+      
+      notifications.forEach(notification => {
+        const notificationDate = notification.getAttribute('data-date');
+        if (selectedDate === '' || notificationDate === selectedDate) {
+          notification.style.display = 'flex';
+        } else {
+          notification.style.display = 'none';
+        }
+      });
+    }
+
+    function showAllNotifications() {
+      const notifications = document.querySelectorAll('.notification-item');
+      notifications.forEach(notification => {
+        notification.style.display = 'flex';
+      });
+      document.getElementById('dateFilter').value = '';
+    }
+
+    // Initialize notification count
+    updateNotificationCount();
+
+    // Display current date
+    function updateDate() {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+      const dateString = now.toLocaleDateString('en-US', options);
+      document.getElementById('currentDate').textContent = dateString;
+    }
+
+    // Update date on page load
+    updateDate();
+
+    // Update date every minute
+    setInterval(updateDate, 60000);
+
+    // Removed bell dropdown per requirement
+
+    // Set today's date as default filter
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('dateFilter').value = today;
+      filterByDate();
+    });
+  </script>
+</body>
+</html>
